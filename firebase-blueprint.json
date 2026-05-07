@@ -1,0 +1,101 @@
+{
+  "entities": {
+    "Transaction": {
+      "title": "Transaction",
+      "description": "A financial transaction record",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "amount": { "type": "number" },
+        "type": { "type": "string", "enum": ["income", "expense"] },
+        "category": { "type": "string" },
+        "description": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" },
+        "currency": { "type": "string" },
+        "bankAccountId": { "type": "string" }
+      },
+      "required": ["userId", "amount", "type", "category", "date", "currency"]
+    },
+    "Budget": {
+      "title": "Budget",
+      "description": "A spending limit for a category",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "category": { "type": "string" },
+        "limit": { "type": "number" },
+        "spent": { "type": "number" },
+        "period": { "type": "string", "enum": ["monthly", "weekly", "yearly"] },
+        "currency": { "type": "string" }
+      },
+      "required": ["userId", "category", "limit", "spent", "period", "currency"]
+    },
+    "Goal": {
+      "title": "Goal",
+      "description": "A savings goal",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "name": { "type": "string" },
+        "targetAmount": { "type": "number" },
+        "currentAmount": { "type": "number" },
+        "deadline": { "type": "string", "format": "date-time" },
+        "category": { "type": "string" },
+        "currency": { "type": "string" }
+      },
+      "required": ["userId", "name", "targetAmount", "currentAmount", "deadline", "currency"]
+    },
+    "Investment": {
+      "title": "Investment",
+      "description": "An investment asset",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "symbol": { "type": "string" },
+        "name": { "type": "string" },
+        "shares": { "type": "number" },
+        "averagePrice": { "type": "number" },
+        "currentPrice": { "type": "number" },
+        "assetType": { "type": "string", "enum": ["stock", "crypto", "bond", "real-estate"] },
+        "lastUpdated": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "symbol", "name", "shares", "averagePrice", "currentPrice", "assetType", "lastUpdated"]
+    },
+    "BillReminder": {
+      "title": "BillReminder",
+      "description": "A reminder for an upcoming bill",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "amount": { "type": "number" },
+        "dueDate": { "type": "string", "format": "date-time" },
+        "isPaid": { "type": "boolean" },
+        "frequency": { "type": "string", "enum": ["once", "monthly", "yearly"] }
+      },
+      "required": ["userId", "title", "amount", "dueDate", "isPaid", "frequency"]
+    }
+  },
+  "firestore": {
+    "transactions": {
+      "schema": "Transaction",
+      "description": "User transactions"
+    },
+    "budgets": {
+      "schema": "Budget",
+      "description": "User budgets"
+    },
+    "goals": {
+      "schema": "Goal",
+      "description": "User savings goals"
+    },
+    "investments": {
+      "schema": "Investment",
+      "description": "User investment portfolio"
+    },
+    "billReminders": {
+      "schema": "BillReminder",
+      "description": "User bill payment reminders"
+    }
+  }
+}

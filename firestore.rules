@@ -1,0 +1,134 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Phase 3: Primitive Definitions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isOwner(data) {
+      return isSignedIn() && data.userId == request.auth.uid;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Pillar 2: Validation Blueprints
+    function isValidTransaction(data) {
+      return data.userId == request.auth.uid
+        && data.amount is number
+        && data.type in ['income', 'expense']
+        && data.category is string && data.category.size() <= 100
+        && data.currency is string && data.currency.size() <= 10
+        && data.date is timestamp
+        // Strict key check for create (userId, amount, type, category, date, currency, description, bankAccountId)
+        && data.keys().hasAll(['userId', 'amount', 'type', 'category', 'date', 'currency'])
+        && data.keys().size() <= 8;
+    }
+
+    function isValidBudget(data) {
+      return data.userId == request.auth.uid
+        && data.limit is number && data.limit >= 0
+        && data.spent is number && data.spent >= 0
+        && data.category is string && data.category.size() <= 100
+        && data.period in ['monthly', 'weekly', 'yearly']
+        && data.currency is string && data.currency.size() <= 10
+        && data.keys().hasAll(['userId', 'limit', 'spent', 'category', 'period', 'currency'])
+        && data.keys().size() == 6;
+    }
+
+    function isValidGoal(data) {
+      return data.userId == request.auth.uid
+        && data.targetAmount is number && data.targetAmount >= 0
+        && data.currentAmount is number && data.currentAmount >= 0
+        && data.name is string && data.name.size() <= 100
+        && data.deadline is timestamp
+        && data.currency is string && data.currency.size() <= 10
+        && data.keys().hasAll(['userId', 'targetAmount', 'currentAmount', 'name', 'deadline', 'currency'])
+        && data.keys().size() <= 7;
+    }
+
+    function isValidInvestment(data) {
+       return data.userId == request.auth.uid
+        && data.symbol is string && data.symbol.size() <= 20
+        && data.name is string && data.name.size() <= 100
+        && data.shares is number && data.shares >= 0
+        && data.averagePrice is number && data.averagePrice >= 0
+        && data.currentPrice is number && data.currentPrice >= 0
+        && data.assetType in ['stock', 'crypto', 'bond', 'real-estate']
+        && data.lastUpdated is timestamp
+        && data.keys().hasAll(['userId', 'symbol', 'name', 'shares', 'averagePrice', 'currentPrice', 'assetType', 'lastUpdated'])
+        && data.keys().size() == 8;
+    }
+
+    function isValidBillReminder(data) {
+      return data.userId == request.auth.uid
+        && data.title is string && data.title.size() <= 100
+        && data.amount is number && data.amount >= 0
+        && data.dueDate is timestamp
+        && data.isPaid is bool
+        && data.frequency in ['once', 'monthly', 'yearly']
+        && data.keys().hasAll(['userId', 'title', 'amount', 'dueDate', 'isPaid', 'frequency'])
+        && data.keys().size() == 6;
+    }
+
+    // Collections
+    match /transactions/{id} {
+      allow create: if isSignedIn() && isValidId(id) && isValidTransaction(incoming());
+      allow update: if isOwner(existing()) && isValidTransaction(incoming()) 
+                     && incoming().userId == existing().userId; // Immutable Owner
+      allow delete: if isOwner(existing());
+      allow read: if isOwner(resource.data);
+    }
+
+    match /budgets/{id} {
+      allow create: if isSignedIn() && isValidId(id) && isValidBudget(incoming());
+      allow update: if isOwner(existing()) && isValidBudget(incoming())
+                     && incoming().userId == existing().userId
+                     && (incoming().diff(existing()).affectedKeys().hasOnly(['spent']) 
+                         || incoming().diff(existing()).affectedKeys().hasOnly(['limit', 'period', 'category', 'currency']));
+      allow delete: if isOwner(existing());
+      allow read: if isOwner(resource.data);
+    }
+
+    match /goals/{id} {
+      allow create: if isSignedIn() && isValidId(id) && isValidGoal(incoming());
+      allow update: if isOwner(existing()) && isValidGoal(incoming())
+                     && incoming().userId == existing().userId;
+      allow delete: if isOwner(existing());
+      allow read: if isOwner(resource.data);
+    }
+
+    match /investments/{id} {
+      allow create: if isSignedIn() && isValidId(id) && isValidInvestment(incoming());
+      allow update: if isOwner(existing()) && isValidInvestment(incoming())
+                     && incoming().userId == existing().userId;
+      allow delete: if isOwner(existing());
+      allow read: if isOwner(resource.data);
+    }
+
+    match /billReminders/{id} {
+      allow create: if isSignedIn() && isValidId(id) && isValidBillReminder(incoming());
+      allow update: if isOwner(existing()) && isValidBillReminder(incoming())
+                     && incoming().userId == existing().userId
+                     && (incoming().diff(existing()).affectedKeys().hasOnly(['isPaid'])
+                         || incoming().diff(existing()).affectedKeys().hasOnly(['title', 'amount', 'dueDate', 'frequency']));
+      allow delete: if isOwner(existing());
+      allow read: if isOwner(resource.data);
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "FinPulse",
+  "short_name": "FinPulse",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0ea5e9",
+  "description": "Manage your personal finances with ease.",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2845/2845892.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
