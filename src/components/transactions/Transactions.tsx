@@ -42,30 +42,33 @@ import {
 import { TRANSACTION_CATEGORIES } from '../../constants';
 import { cn } from '../../lib/utils';
 
+import { useLanguage } from '../../lib/LanguageContext';
+
 export function Transactions() {
+  const { t, isRTL } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
 
   return (
     <div className="space-y-10">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-sky-400 mb-1">Activity Log</h2>
-          <div className="flex items-center gap-2">
-            <h1 className="text-3xl font-black tracking-tighter">TRANS_HISTORY.LOG</h1>
+      <div className={cn("flex flex-col sm:flex-row sm:items-center justify-between gap-4", isRTL && "sm:flex-row-reverse")}>
+        <div className={isRTL ? "text-right" : "text-left"}>
+          <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-sky-400 mb-1">{isRTL ? 'سرگرمی لاگ' : 'Activity Log'}</h2>
+          <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+            <h1 className={cn("text-3xl font-black tracking-tighter", isRTL && "font-urdu")}>TRANS_HISTORY.LOG</h1>
             <div className="h-1 w-10 bg-sky-500 hidden sm:block"></div>
           </div>
         </div>
         
-        <div className="flex items-center gap-2">
+        <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
           <Button variant="outline" className="h-10 border-slate-700 text-[10px] uppercase font-bold tracking-widest bg-transparent hover:bg-slate-800 text-slate-300">
-            <Download className="w-4 h-4 mr-2" />
-            EXPORT_RAW
+            <Download className={cn("w-4 h-4", isRTL ? "ml-2" : "mr-2")} />
+            {isRTL ? 'ایکسپورٹ' : 'EXPORT_RAW'}
           </Button>
           
           <Dialog>
             <DialogTrigger render={<Button className="h-10 bg-sky-500 hover:bg-sky-600 text-slate-900 rounded-none font-bold text-xs uppercase tracking-widest px-6 italic" />}>
-                <Plus className="w-4 h-4 mr-2" />
-                NEW_ENTRY
+                <Plus className={cn("w-4 h-4", isRTL ? "ml-2" : "mr-2")} />
+                {isRTL ? 'نیا اندراج' : 'NEW_ENTRY'}
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px] bg-[#1E293B] border-slate-700 rounded-none">
               <DialogHeader>

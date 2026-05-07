@@ -55,23 +55,27 @@ const categoryData = [
 
 const COLORS = ['#0ea5e9', '#6366f1', '#8b5cf6', '#ec4899'];
 
+import { useLanguage } from '../../lib/LanguageContext';
+
 export function Dashboard() {
+  const { t, isRTL } = useLanguage();
+
   return (
     <div className="space-y-10">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-sky-400 mb-1">System Overview</h2>
-          <div className="flex items-center gap-2">
-            <h1 className="text-3xl font-black tracking-tighter">FINANCE.DASHBOARD</h1>
+      <div className={cn("flex items-center justify-between", isRTL && "flex-row-reverse")}>
+        <div className={isRTL ? "text-right" : "text-left"}>
+          <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-sky-400 mb-1">{t('dashboard.subtitle')}</h2>
+          <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+            <h1 className={cn("text-3xl font-black tracking-tighter", isRTL && "font-urdu")}>{t('dashboard.title')}</h1>
             <div className="h-1 w-10 bg-sky-500 hidden sm:block"></div>
           </div>
         </div>
-        <div className="flex gap-3">
+        <div className={cn("flex gap-3", isRTL && "flex-row-reverse")}>
           <Button variant="outline" className="border-slate-800 text-[10px] uppercase font-bold tracking-widest bg-transparent hover:bg-slate-800">
-            History
+            {isRTL ? 'تاریخچہ' : 'History'}
           </Button>
           <Button className="h-10 bg-sky-500 hover:bg-sky-600 text-slate-900 rounded-none font-bold text-xs uppercase tracking-widest px-6 italic">
-            Add Entry
+            {isRTL ? 'اندراج کریں' : 'Add Entry'}
           </Button>
         </div>
       </div>
@@ -79,32 +83,32 @@ export function Dashboard() {
       {/* Summary Cards */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <Card className="stat-card p-6">
-          <span className="text-[10px] text-slate-400 uppercase tracking-widest font-bold block mb-4">Total Liquidity</span>
+          <span className="text-[10px] text-slate-400 uppercase tracking-widest font-bold block mb-4">{t('dashboard.total_liquidity')}</span>
           <div className="text-3xl font-black tracking-tight text-sky-400">$12,450.00</div>
-          <div className="text-[10px] text-emerald-400 mt-2 font-mono flex items-center gap-1">
+          <div className={cn("text-[10px] text-emerald-400 mt-2 font-mono flex items-center gap-1", isRTL && "flex-row-reverse")}>
              <ArrowUpRight className="w-3 h-3" /> +2.5% VS LAST MONTH
           </div>
         </Card>
 
         <Card className="stat-card p-6">
-          <span className="text-[10px] text-slate-400 uppercase tracking-widest font-bold block mb-4">Inflow / Monthly</span>
+          <span className="text-[10px] text-slate-400 uppercase tracking-widest font-bold block mb-4">{t('dashboard.inflow')}</span>
           <div className="text-3xl font-black tracking-tight">$5,200.00</div>
           <div className="text-[10px] text-slate-500 mt-2 font-mono">STATUS: OPTIMAL</div>
         </Card>
 
         <Card className="stat-card p-6">
-          <span className="text-[10px] text-slate-400 uppercase tracking-widest font-bold block mb-4">Outflow / Monthly</span>
+          <span className="text-[10px] text-slate-400 uppercase tracking-widest font-bold block mb-4">{t('dashboard.outflow')}</span>
           <div className="text-3xl font-black tracking-tight text-rose-500">$3,150.00</div>
-          <div className="text-[10px] text-rose-400 mt-2 font-mono flex items-center gap-1">
+          <div className={cn("text-[10px] text-rose-400 mt-2 font-mono flex items-center gap-1", isRTL && "flex-row-reverse")}>
              <ArrowUpRight className="w-3 h-3" /> CRITICAL_LEVEL_ALERT
           </div>
         </Card>
 
         <Card className="stat-card p-6">
-          <span className="text-[10px] text-slate-400 uppercase tracking-widest font-bold block mb-4">Active Goal Progress</span>
+          <span className="text-[10px] text-slate-400 uppercase tracking-widest font-bold block mb-4">{t('dashboard.goal_progress')}</span>
           <div className="text-3xl font-black tracking-tight">75.0%</div>
           <div className="w-full bg-slate-800 h-1 mt-4">
-            <div className="bg-sky-500 h-full w-[75%] shadow-[0_0_10px_rgba(14,165,233,0.5)]"></div>
+            <div className={cn("h-full bg-sky-500 shadow-[0_0_10px_rgba(14,165,233,0.5)]", isRTL && "float-right")} style={{ width: '75%' }}></div>
           </div>
         </Card>
       </div>
@@ -112,12 +116,12 @@ export function Dashboard() {
       <div className="grid gap-6 lg:grid-cols-7">
         {/* Main Chart */}
         <Card className="lg:col-span-5 stat-card p-8 group">
-          <div className="flex justify-between items-center mb-10">
-            <div>
-              <h2 className="text-xs font-bold uppercase tracking-widest text-slate-100">Capital Performance</h2>
+          <div className={cn("flex justify-between items-center mb-10", isRTL && "flex-row-reverse")}>
+            <div className={isRTL ? "text-right" : "text-left"}>
+              <h2 className="text-xs font-bold uppercase tracking-widest text-slate-100">{t('dashboard.performance')}</h2>
               <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-1 italic">Real-time liquidity tracking</p>
             </div>
-            <div className="flex gap-4 text-[10px] font-bold tracking-widest font-mono">
+            <div className={cn("flex gap-4 text-[10px] font-bold tracking-widest font-mono", isRTL && "flex-row-reverse")}>
               <div className="flex items-center gap-1.5"><div className="w-2 h-2 bg-sky-500 shadow-[0_0_8px_rgba(14,165,233,0.5)]"></div> IN</div>
               <div className="flex items-center gap-1.5"><div className="w-2 h-2 bg-slate-700"></div> OUT</div>
             </div>

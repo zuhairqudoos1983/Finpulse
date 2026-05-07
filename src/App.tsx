@@ -15,6 +15,8 @@ import { BillReminders } from './components/bills/BillReminders';
 import { Settings } from './components/settings/Settings';
 import { Toaster } from './components/ui/sonner';
 
+import { LanguageProvider } from './lib/LanguageContext';
+
 function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
 
@@ -47,12 +49,12 @@ function App() {
   };
 
   return (
-    <>
+    <LanguageProvider>
       <Shell activeTab={activeTab} setActiveTab={setActiveTab}>
         {renderContent()}
       </Shell>
       <Toaster position="top-right" richColors />
-    </>
+    </LanguageProvider>
   );
 }
 
