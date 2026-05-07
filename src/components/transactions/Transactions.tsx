@@ -63,11 +63,9 @@ export function Transactions() {
           </Button>
           
           <Dialog>
-            <DialogTrigger asChild>
-              <Button className="h-10 bg-sky-500 hover:bg-sky-600 text-slate-900 rounded-none font-bold text-xs uppercase tracking-widest px-6 italic">
+            <DialogTrigger render={<Button className="h-10 bg-sky-500 hover:bg-sky-600 text-slate-900 rounded-none font-bold text-xs uppercase tracking-widest px-6 italic" />}>
                 <Plus className="w-4 h-4 mr-2" />
                 NEW_ENTRY
-              </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px] bg-[#1E293B] border-slate-700 rounded-none">
               <DialogHeader>

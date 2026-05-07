@@ -9,7 +9,8 @@ import {
   Plus, 
   TrendingUp, 
   AlertTriangle,
-  CheckCircle2
+  CheckCircle2,
+  BrainCircuit
 } from 'lucide-react';
 import { 
   Card, 

@@ -104,12 +104,10 @@ export function Shell({ children, activeTab, setActiveTab }: ShellProps) {
           <div className="flex items-center gap-4">
             {isMobile && (
               <Sheet>
-                <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon">
+                <SheetTrigger render={<Button variant="ghost" size="icon" />}>
                     <Menu className="w-6 h-6 text-slate-400" />
-                  </Button>
                 </SheetTrigger>
-                <SheetContent side="left" className="p-0 w-64 border-none">
+                <SheetContent side="left" className="p-0 w-64 border-none bg-[#0F172A]">
                   <SidebarContent />
                 </SheetContent>
               </Sheet>
