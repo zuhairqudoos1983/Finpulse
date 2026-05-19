@@ -24,7 +24,10 @@ import { Progress } from '../ui/progress';
 import { Badge } from '../ui/badge';
 import { cn } from '../../lib/utils';
 
+import { useLanguage } from '../../lib/LanguageContext';
+
 export function Budgeting() {
+  const { t, isRTL, formatValue } = useLanguage();
   const budgets = [
     { category: 'Housing', limit: 1500, spent: 1500, color: 'bg-sky-500' },
     { category: 'Food & Dining', limit: 600, spent: 450, color: 'bg-sky-500' },
@@ -35,17 +38,17 @@ export function Budgeting() {
 
   return (
     <div className="space-y-10">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-sky-400 mb-1">Fiscal Constraints</h2>
-          <div className="flex items-center gap-2">
-            <h1 className="text-3xl font-black tracking-tighter">BUDGET_PROTOCOLS.CFG</h1>
+      <div className={cn("flex flex-col sm:flex-row sm:items-center justify-between gap-4", isRTL && "sm:flex-row-reverse")}>
+        <div className={isRTL ? "text-right" : "text-left"}>
+          <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-sky-400 mb-1">{isRTL ? 'مالیاتی حدود' : 'Fiscal Constraints'}</h2>
+          <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+            <h1 className={cn("text-3xl font-black tracking-tighter", isRTL && "font-urdu")}>BUDGET_PROTOCOLS.CFG</h1>
             <div className="h-1 w-10 bg-sky-500 hidden sm:block"></div>
           </div>
         </div>
         <Button className="h-10 bg-sky-500 hover:bg-sky-600 text-slate-900 rounded-none font-bold text-xs uppercase tracking-widest px-6 italic">
-          <Plus className="w-4 h-4 mr-2" />
-          NEW_PROTOCOL
+          <Plus className={cn("w-4 h-4", isRTL ? "ml-2" : "mr-2")} />
+          {isRTL ? 'نیا بجٹ' : 'NEW_PROTOCOL'}
         </Button>
       </div>
 
@@ -56,8 +59,8 @@ export function Budgeting() {
           
           return (
             <Card key={budget.category} className="stat-card p-6 border-slate-700">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-sm font-bold uppercase tracking-widest text-slate-100">{budget.category}</h3>
+              <div className={cn("flex items-center justify-between mb-6", isRTL && "flex-row-reverse")}>
+                <h3 className={cn("text-sm font-bold uppercase tracking-widest text-slate-100", isRTL && "font-urdu")}>{budget.category}</h3>
                 {isOver ? (
                   <AlertTriangle className="w-4 h-4 text-rose-500" />
                 ) : percent > 90 ? (
@@ -68,27 +71,28 @@ export function Budgeting() {
               </div>
               
               <div className="space-y-4">
-                <div className="flex justify-between font-mono text-[10px] tracking-widest uppercase text-slate-500">
-                  <span>Usage: <span className={cn("font-bold", isOver ? "text-rose-400" : "text-sky-400")}>${budget.spent}</span></span>
-                  <span>Cap: <span className="text-slate-300">${budget.limit}</span></span>
+                <div className={cn("flex justify-between font-mono text-[10px] tracking-widest uppercase text-slate-500", isRTL && "flex-row-reverse")}>
+                  <span>{isRTL ? 'استعمال' : 'Usage'}: <span className={cn("font-bold", isOver ? "text-rose-400" : "text-sky-400")}>{formatValue(budget.spent)}</span></span>
+                  <span>{isRTL ? 'حد' : 'Cap'}: <span className="text-slate-300">{formatValue(budget.limit)}</span></span>
                 </div>
                 
                 <div className="h-1 bg-slate-800">
                   <div 
                     className={cn(
                       "h-full transition-all duration-500",
-                      isOver ? "bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.3)]" : "bg-sky-500 shadow-[0_0_10px_rgba(14,165,233,0.3)]"
+                      isOver ? "bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.3)]" : "bg-sky-500 shadow-[0_0_10px_rgba(14,165,233,0.3)]",
+                      isRTL && "float-right"
                     )} 
                     style={{ width: `${Math.min(percent, 100)}%` }} 
                   />
                 </div>
                 
-                <div className="flex justify-between items-center bg-slate-900/50 p-2 border border-slate-800/50">
+                <div className={cn("flex justify-between items-center bg-slate-900/50 p-2 border border-slate-800/50", isRTL && "flex-row-reverse")}>
                   <span className={cn(
                     "text-[9px] font-mono tracking-wider uppercase",
                     isOver ? "text-rose-400" : "text-slate-500"
                   )}>
-                    {isOver ? `DELTA_NEGATIVE: -$${budget.spent - budget.limit}` : `RESERVE: $${budget.limit - budget.spent}`}
+                    {isOver ? `DELTA_NEGATIVE: -${formatValue(budget.spent - budget.limit)}` : `RESERVE: ${formatValue(budget.limit - budget.spent)}`}
                   </span>
                   <div className={cn(
                     "px-1.5 py-0.5 text-[9px] font-bold font-mono border",

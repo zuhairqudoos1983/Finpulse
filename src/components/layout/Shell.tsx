@@ -42,7 +42,7 @@ const navItems = [
 import { useLanguage } from '../../lib/LanguageContext';
 
 export function Shell({ children, activeTab, setActiveTab }: ShellProps) {
-  const { t, isRTL } = useLanguage();
+  const { t, isRTL, currency } = useLanguage();
   const [isMobile, setIsMobile] = useState(false);
 
   const navItems = [
@@ -142,7 +142,11 @@ export function Shell({ children, activeTab, setActiveTab }: ShellProps) {
                 {t('header.status')}: <span className="text-emerald-400">{t('header.encrypted')}</span>
               </div>
               <div className="text-[10px] text-slate-400 font-mono tracking-wider">
-                {t('header.currency')}: <span className="text-white">USD ($)</span>
+                {t('header.currency')}: <span className="text-white">{currency} ({
+                  currency === 'PKR' ? 'Rs' : 
+                  currency === 'AED' ? 'Dh' : 
+                  currency === 'SAR' ? 'SR' : '$'
+                })</span>
               </div>
             </div>
           </div>

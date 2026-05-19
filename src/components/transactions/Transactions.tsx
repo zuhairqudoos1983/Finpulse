@@ -43,10 +43,41 @@ import { TRANSACTION_CATEGORIES } from '../../constants';
 import { cn } from '../../lib/utils';
 
 import { useLanguage } from '../../lib/LanguageContext';
+import { useUser } from '../../lib/UserContext';
+import { Trash2 } from 'lucide-react';
 
 export function Transactions() {
-  const { t, isRTL } = useLanguage();
+  const { t, isRTL, formatValue } = useLanguage();
+  const { transactions, setTransactions, resetData } = useUser();
   const [searchTerm, setSearchTerm] = useState('');
+
+  const [newEntry, setNewEntry] = useState({
+    title: '',
+    amount: '',
+    type: 'expense',
+    category: 'F&D'
+  });
+
+  const handleAddTransaction = () => {
+    if (!newEntry.title || !newEntry.amount) return;
+
+    const entry = {
+      date: new Date().toISOString().split('T')[0].replace(/-/g, '.'),
+      name: newEntry.title,
+      cat: newEntry.category.substring(0, 4).toUpperCase(),
+      acc: 'MANUAL',
+      amount: parseFloat(newEntry.amount) * (newEntry.type === 'expense' ? -1 : 1),
+      type: newEntry.type
+    };
+
+    setTransactions([entry, ...transactions]);
+    setNewEntry({ title: '', amount: '', type: 'expense', category: 'F&D' });
+  };
+
+  const filteredTransactions = transactions.filter(tr => 
+    tr.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    tr.cat.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="space-y-10">
@@ -60,6 +91,15 @@ export function Transactions() {
         </div>
         
         <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+          <Button 
+            variant="outline" 
+            onClick={resetData}
+            className="h-10 border-rose-900/50 text-rose-400 text-[10px] uppercase font-bold tracking-widest bg-rose-500/5 hover:bg-rose-500/10 hover:text-rose-300 transition-all shadow-[0_0_10px_rgba(244,63,94,0.1)]"
+          >
+            <Trash2 className={cn("w-4 h-4", isRTL ? "ml-2" : "mr-2")} />
+            {isRTL ? 'تمام ڈیٹا صاف کریں' : 'RESET_ALL'}
+          </Button>
+
           <Button variant="outline" className="h-10 border-slate-700 text-[10px] uppercase font-bold tracking-widest bg-transparent hover:bg-slate-800 text-slate-300">
             <Download className={cn("w-4 h-4", isRTL ? "ml-2" : "mr-2")} />
             {isRTL ? 'ایکسپورٹ' : 'EXPORT_RAW'}
@@ -77,19 +117,32 @@ export function Transactions() {
               <div className="grid gap-4 py-4">
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="title" className="text-right text-[10px] uppercase font-bold text-slate-400">Title</Label>
-                  <Input id="title" placeholder="Description" className="col-span-3 bg-slate-900 border-slate-800 rounded-none text-xs" />
+                  <Input 
+                    id="title" 
+                    placeholder="Description" 
+                    className="col-span-3 bg-slate-900 border-slate-800 rounded-none text-xs" 
+                    value={newEntry.title}
+                    onChange={(e) => setNewEntry({...newEntry, title: e.target.value})}
+                  />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="amount" className="text-right text-[10px] uppercase font-bold text-slate-400">Amount</Label>
-                  <Input id="amount" type="number" placeholder="0.00" className="col-span-3 bg-slate-900 border-slate-800 rounded-none text-xs" />
+                  <Input 
+                    id="amount" 
+                    type="number" 
+                    placeholder="0.00" 
+                    className="col-span-3 bg-slate-900 border-slate-800 rounded-none text-xs" 
+                    value={newEntry.amount}
+                    onChange={(e) => setNewEntry({...newEntry, amount: e.target.value})}
+                  />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label className="text-right text-[10px] uppercase font-bold text-slate-400">Type</Label>
-                  <Select>
+                  <Select value={newEntry.type} onValueChange={(val) => setNewEntry({...newEntry, type: val})}>
                     <SelectTrigger className="col-span-3 bg-slate-900 border-slate-800 rounded-none text-xs">
                       <SelectValue placeholder="Select type" />
                     </SelectTrigger>
-                    <SelectContent className="bg-slate-900 border-slate-800 rounded-none">
+                    <SelectContent className="bg-slate-900 border-slate-800 rounded-none text-slate-100">
                       <SelectItem value="expense">Expense</SelectItem>
                       <SelectItem value="income">Income</SelectItem>
                     </SelectContent>
@@ -97,22 +150,22 @@ export function Transactions() {
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label className="text-right text-[10px] uppercase font-bold text-slate-400">Category</Label>
-                  <Select>
+                  <Select value={newEntry.category} onValueChange={(val) => setNewEntry({...newEntry, category: val})}>
                     <SelectTrigger className="col-span-3 bg-slate-900 border-slate-800 rounded-none text-xs">
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
-                    <SelectContent className="bg-slate-900 border-slate-800 rounded-none">
+                    <SelectContent className="bg-slate-900 border-slate-800 rounded-none text-slate-100">
                       {TRANSACTION_CATEGORIES.map(cat => (
-                        <SelectItem key={cat} value={cat.toLowerCase()}>{cat}</SelectItem>
+                        <SelectItem key={cat} value={cat}>{cat}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
               </div>
               <DialogFooter>
-                <Button type="submit" className="bg-sky-500 hover:bg-sky-600 text-slate-900 rounded-none font-bold text-[10px] uppercase tracking-widest px-6 shadow-[0_0_15px_rgba(14,165,233,0.3)]">
+                <DialogTrigger render={<Button onClick={handleAddTransaction} type="submit" className="bg-sky-500 hover:bg-sky-600 text-slate-900 rounded-none font-bold text-[10px] uppercase tracking-widest px-6 shadow-[0_0_15px_rgba(14,165,233,0.3)]">
                   COMMIT_CHANGES
-                </Button>
+                </Button>} />
               </DialogFooter>
             </DialogContent>
           </Dialog>
@@ -123,7 +176,7 @@ export function Transactions() {
         <div className="relative w-full md:w-96">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
           <Input 
-            className="pl-10 bg-slate-900 border-slate-800 rounded-none text-xs focus:border-sky-500 transition-colors" 
+            className="pl-10 bg-slate-900 border-slate-800 rounded-none text-xs focus:border-sky-500 transition-colors text-slate-100" 
             placeholder="FILTER_STREAM..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -138,7 +191,7 @@ export function Transactions() {
             <SelectTrigger className="w-full md:w-[150px] bg-slate-900 border-slate-800 rounded-none text-[10px] uppercase font-bold tracking-widest h-8">
               <SelectValue placeholder="All Categories" />
             </SelectTrigger>
-            <SelectContent className="bg-slate-900 border-slate-800 rounded-none">
+            <SelectContent className="bg-slate-900 border-slate-800 rounded-none text-slate-100">
               <SelectItem value="all">All Categories</SelectItem>
               {TRANSACTION_CATEGORIES.slice(0, 5).map(cat => (
                 <SelectItem key={cat} value={cat.toLowerCase()}>{cat}</SelectItem>
@@ -160,14 +213,7 @@ export function Transactions() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {[
-              { date: '2024.05.05', name: 'Starbucks Coffee', cat: 'F&D', acc: 'VISA_4242', amount: -5.45, type: 'expense' },
-              { date: '2024.05.04', name: 'Stripe Payout', cat: 'REV', acc: 'MAIN_WALLET', amount: 3200.00, type: 'income' },
-              { date: '2024.05.03', name: 'Amazon.com', cat: 'SHOP', acc: 'CRED_8821', amount: -124.99, type: 'expense' },
-              { date: '2024.05.01', name: 'Monthly Rent', cat: 'HOUSE', acc: 'AUTO_BANK', amount: -1500.00, type: 'expense' },
-              { date: '2024.04.30', name: 'Grocery Store', cat: 'F&D', acc: 'VISA_4242', amount: -65.20, type: 'expense' },
-              { date: '2024.04.28', name: 'Netflix Subscription', cat: 'ENT', acc: 'CRED_8821', amount: -19.99, type: 'expense' },
-            ].map((row, i) => (
+            {filteredTransactions.map((row, i) => (
               <TableRow key={i} className="group border-slate-800 hover:bg-slate-800/20 transition-all">
                 <TableCell className="font-mono text-[10px] text-slate-500">{row.date}</TableCell>
                 <TableCell>
@@ -183,7 +229,7 @@ export function Transactions() {
                   "text-right font-mono text-xs font-bold",
                   row.type === 'income' ? "text-emerald-400" : "text-rose-400"
                 )}>
-                  {row.type === 'income' ? '+' : '-'}${Math.abs(row.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                  {row.type === 'income' ? '+' : '-'}{formatValue(Math.abs(row.amount))}
                 </TableCell>
               </TableRow>
             ))}

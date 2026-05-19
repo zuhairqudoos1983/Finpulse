@@ -1,11 +1,15 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 type Language = 'en' | 'ur';
+type Currency = 'USD' | 'PKR' | 'AED' | 'SAR';
 
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
+  currency: Currency;
+  setCurrency: (curr: Currency) => void;
   t: (key: string) => string;
+  formatValue: (value: number) => string;
   isRTL: boolean;
 }
 
@@ -31,6 +35,7 @@ const translations = {
     'dashboard.live_stream': 'Live Transaction Stream',
     'settings.title': 'SYSTEM_SETTINGS.CFG',
     'settings.language': 'Language Selection',
+    'settings.currency': 'Currency Selection',
     'settings.theme': 'Visual Interface',
     'settings.profile': 'User Profile',
     'common.save': 'COMMIT_CHANGES',
@@ -57,6 +62,7 @@ const translations = {
     'dashboard.live_stream': 'لین دین کی لائیو سٹریم',
     'settings.title': 'سسٹم کی ترتیبات',
     'settings.language': 'زبان کا انتخاب',
+    'settings.currency': 'کرنسی کا انتخاب',
     'settings.theme': 'انٹرفیس کی ترتیب',
     'settings.profile': 'صارف کی پروفائل',
     'common.save': 'تبدیلیوں کی تصدیق',
@@ -68,15 +74,32 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguage] = useState<Language>('en');
+  const [currency, setCurrency] = useState<Currency>('PKR');
 
   const t = (key: string) => {
     return translations[language][key as keyof typeof translations['en']] || key;
   };
 
+  const formatValue = (value: number) => {
+    const formatters = {
+      PKR: { prefix: 'Rs ', digits: 0 },
+      USD: { prefix: '$', digits: 2 },
+      AED: { prefix: 'Dh ', digits: 2 },
+      SAR: { prefix: 'SR ', digits: 2 },
+    };
+    
+    // @ts-ignore
+    const config = formatters[currency] || formatters.USD;
+    return `${config.prefix}${value.toLocaleString(undefined, { 
+      minimumFractionDigits: config.digits,
+      maximumFractionDigits: config.digits 
+    })}`;
+  };
+
   const isRTL = language === 'ur';
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t, isRTL }}>
+    <LanguageContext.Provider value={{ language, setLanguage, currency, setCurrency, t, formatValue, isRTL }}>
       <div dir={isRTL ? 'rtl' : 'ltr'} className={isRTL ? 'font-urdu' : ''}>
         {children}
       </div>

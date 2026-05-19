@@ -56,15 +56,44 @@ const categoryData = [
 const COLORS = ['#0ea5e9', '#6366f1', '#8b5cf6', '#ec4899'];
 
 import { useLanguage } from '../../lib/LanguageContext';
+import { useUser } from '../../lib/UserContext';
+
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogTrigger,
+  DialogFooter
+} from '../ui/dialog';
+import { Label } from '../ui/label';
+import { Input } from '../ui/input';
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from '../ui/select';
+import { TRANSACTION_CATEGORIES } from '../../constants';
 
 export function Dashboard() {
-  const { t, isRTL } = useLanguage();
+  const { t, isRTL, formatValue } = useLanguage();
+  const { userName, widgets, targets } = useUser();
+
+  const totalInflow = 5200;
+  const totalOutflow = 3150;
+  const netSavings = totalInflow - totalOutflow;
+  const goalPercent = Math.min((netSavings / targets.monthlySavingsGoal) * 100, 100).toFixed(1);
+  const capPercent = (totalOutflow / targets.monthlyExpenseCap) * 100;
 
   return (
-    <div className="space-y-10">
-      <div className={cn("flex items-center justify-between", isRTL && "flex-row-reverse")}>
+    <div className="space-y-10 pb-20">
+      <div className={cn("flex flex-col sm:flex-row sm:items-center justify-between gap-6", isRTL && "sm:flex-row-reverse")}>
         <div className={isRTL ? "text-right" : "text-left"}>
-          <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-sky-400 mb-1">{t('dashboard.subtitle')}</h2>
+          <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-sky-400 mb-1">
+            {isRTL ? `خوش آمدید، ${userName}` : `GREETINGS, ${userName.toUpperCase()}`}
+          </h2>
           <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
             <h1 className={cn("text-3xl font-black tracking-tighter", isRTL && "font-urdu")}>{t('dashboard.title')}</h1>
             <div className="h-1 w-10 bg-sky-500 hidden sm:block"></div>
@@ -74,9 +103,32 @@ export function Dashboard() {
           <Button variant="outline" className="border-slate-800 text-[10px] uppercase font-bold tracking-widest bg-transparent hover:bg-slate-800">
             {isRTL ? 'تاریخچہ' : 'History'}
           </Button>
-          <Button className="h-10 bg-sky-500 hover:bg-sky-600 text-slate-900 rounded-none font-bold text-xs uppercase tracking-widest px-6 italic">
-            {isRTL ? 'اندراج کریں' : 'Add Entry'}
-          </Button>
+          
+          <Dialog>
+            <DialogTrigger render={<Button className="h-10 bg-sky-500 hover:bg-sky-600 text-slate-900 rounded-none font-bold text-xs uppercase tracking-widest px-6 italic" />}>
+                {isRTL ? 'اندراج کریں' : 'Add Entry'}
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px] bg-[#1E293B] border-slate-700 rounded-none">
+              <DialogHeader>
+                <DialogTitle className="text-sm font-bold uppercase tracking-widest text-slate-100">Quick Entry</DialogTitle>
+              </DialogHeader>
+              <div className="grid gap-4 py-4 px-2">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="title" className="text-[10px] uppercase font-bold text-slate-400">Title</Label>
+                  <Input id="title" placeholder="Description" className="col-span-3 bg-slate-900 border-slate-800 rounded-none text-xs text-slate-100" />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="amount" className="text-[10px] uppercase font-bold text-slate-400">Amount</Label>
+                  <Input id="amount" type="number" placeholder="0.00" className="col-span-3 bg-slate-900 border-slate-800 rounded-none text-xs text-slate-100" />
+                </div>
+              </div>
+              <DialogFooter>
+                <DialogTrigger render={<Button type="submit" className="bg-sky-500 hover:bg-sky-600 text-slate-900 rounded-none font-bold text-[10px] uppercase tracking-widest px-6">
+                  COMMIT_ENTRY
+                </Button>} />
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
@@ -84,7 +136,7 @@ export function Dashboard() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <Card className="stat-card p-6">
           <span className="text-[10px] text-slate-400 uppercase tracking-widest font-bold block mb-4">{t('dashboard.total_liquidity')}</span>
-          <div className="text-3xl font-black tracking-tight text-sky-400">$12,450.00</div>
+          <div className="text-3xl font-black tracking-tight text-sky-400">{formatValue(12450)}</div>
           <div className={cn("text-[10px] text-emerald-400 mt-2 font-mono flex items-center gap-1", isRTL && "flex-row-reverse")}>
              <ArrowUpRight className="w-3 h-3" /> +2.5% VS LAST MONTH
           </div>
@@ -92,30 +144,35 @@ export function Dashboard() {
 
         <Card className="stat-card p-6">
           <span className="text-[10px] text-slate-400 uppercase tracking-widest font-bold block mb-4">{t('dashboard.inflow')}</span>
-          <div className="text-3xl font-black tracking-tight">$5,200.00</div>
+          <div className="text-3xl font-black tracking-tight">{formatValue(5200)}</div>
           <div className="text-[10px] text-slate-500 mt-2 font-mono">STATUS: OPTIMAL</div>
         </Card>
 
         <Card className="stat-card p-6">
           <span className="text-[10px] text-slate-400 uppercase tracking-widest font-bold block mb-4">{t('dashboard.outflow')}</span>
-          <div className="text-3xl font-black tracking-tight text-rose-500">$3,150.00</div>
+          <div className="text-3xl font-black tracking-tight text-rose-500">{formatValue(3150)}</div>
           <div className={cn("text-[10px] text-rose-400 mt-2 font-mono flex items-center gap-1", isRTL && "flex-row-reverse")}>
-             <ArrowUpRight className="w-3 h-3" /> CRITICAL_LEVEL_ALERT
+             {capPercent > 90 ? (
+               <><ArrowUpRight className="w-3 h-3" /> CRITICAL_LEVEL_ALERT</>
+             ) : (
+               <>STATUS: NOMINAL</>
+             )}
           </div>
         </Card>
 
         <Card className="stat-card p-6">
           <span className="text-[10px] text-slate-400 uppercase tracking-widest font-bold block mb-4">{t('dashboard.goal_progress')}</span>
-          <div className="text-3xl font-black tracking-tight">75.0%</div>
+          <div className="text-3xl font-black tracking-tight">{goalPercent}%</div>
           <div className="w-full bg-slate-800 h-1 mt-4">
-            <div className={cn("h-full bg-sky-500 shadow-[0_0_10px_rgba(14,165,233,0.5)]", isRTL && "float-right")} style={{ width: '75%' }}></div>
+            <div className={cn("h-full bg-sky-500 shadow-[0_0_10px_rgba(14,165,233,0.5)]", isRTL && "float-right")} style={{ width: `${goalPercent}%` }}></div>
           </div>
         </Card>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-7">
         {/* Main Chart */}
-        <Card className="lg:col-span-5 stat-card p-8 group">
+        {widgets.performance && (
+          <Card className={cn("stat-card p-8 group", widgets.allocation ? "lg:col-span-5" : "lg:col-span-7")}>
           <div className={cn("flex justify-between items-center mb-10", isRTL && "flex-row-reverse")}>
             <div className={isRTL ? "text-right" : "text-left"}>
               <h2 className="text-xs font-bold uppercase tracking-widest text-slate-100">{t('dashboard.performance')}</h2>
@@ -150,7 +207,7 @@ export function Dashboard() {
                   axisLine={false} 
                   tickLine={false} 
                   tick={{ fontSize: 10, fill: '#64748b', fontWeight: 600 }} 
-                  tickFormatter={(value) => `$${value}`}
+                  tickFormatter={(value) => formatValue(value)}
                 />
                 <Tooltip 
                   contentStyle={{ 
@@ -181,9 +238,11 @@ export function Dashboard() {
             </ResponsiveContainer>
           </div>
         </Card>
+        )}
 
         {/* Category Breakdown */}
-        <Card className="lg:col-span-2 stat-card p-8">
+        {widgets.allocation && (
+        <Card className={cn("stat-card p-8", widgets.performance ? "lg:col-span-2" : "lg:col-span-7")}>
           <h2 className="text-xs font-bold uppercase tracking-widest text-slate-100 mb-8">Asset Allocation</h2>
           <div className="space-y-6">
             {categoryData.map((item, index) => (
@@ -205,9 +264,11 @@ export function Dashboard() {
             Analyze Metrics
           </button>
         </Card>
+        )}
       </div>
 
       {/* Recent Activity */}
+      {widgets.stream && (
       <Card className="stat-card p-8 overflow-hidden">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-xs font-bold uppercase tracking-widest text-slate-100">Live Transaction Stream</h2>
@@ -236,12 +297,13 @@ export function Dashboard() {
                 "text-xs font-mono font-bold",
                 t.amount < 0 ? "text-rose-400" : "text-emerald-400"
               )}>
-                {t.amount < 0 ? '-' : '+'}${Math.abs(t.amount).toFixed(2)}
+                {t.amount < 0 ? '-' : '+'}{formatValue(Math.abs(t.amount))}
               </div>
             </div>
           ))}
         </div>
       </Card>
+      )}
     </div>
   );
 }

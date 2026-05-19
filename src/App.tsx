@@ -16,6 +16,7 @@ import { Settings } from './components/settings/Settings';
 import { Toaster } from './components/ui/sonner';
 
 import { LanguageProvider } from './lib/LanguageContext';
+import { UserProvider } from './lib/UserContext';
 
 function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -50,10 +51,12 @@ function App() {
 
   return (
     <LanguageProvider>
-      <Shell activeTab={activeTab} setActiveTab={setActiveTab}>
-        {renderContent()}
-      </Shell>
-      <Toaster position="top-right" richColors />
+      <UserProvider>
+        <Shell activeTab={activeTab} setActiveTab={setActiveTab}>
+          {renderContent()}
+        </Shell>
+        <Toaster position="top-right" richColors />
+      </UserProvider>
     </LanguageProvider>
   );
 }
